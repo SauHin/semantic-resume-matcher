@@ -78,4 +78,4 @@ constraints. Each entry gives the decision, the reason, and the rejected alterna
   - BS vs B2 stays as the practical comparison: train an own model or use a pretrained one.
 - The report also states the BS vs B2 confound as a limitation.
 - Priority: above B4. Details (data size, learning rate) are decided at milestone 5.
-- Open: the owner adds `B2-rand` to the table in `docs/PLAN.md` §5.
+- `docs/PLAN.md` §5 and §9 include `B2-rand` (owner request, 2026-09-29).

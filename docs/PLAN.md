@@ -72,11 +72,14 @@ Non-negotiable data rules:
 | BS | Siamese BiLSTM trained from scratch with contrastive loss | DL baseline |
 | B1 | `all-MiniLM-L6-v2`, frozen | Pretrained, no training |
 | B2 | MiniLM fine-tuned with contrastive loss, at different training-data sizes | Transfer learning + training-condition variable |
+| B2-rand | MiniLM architecture + tokenizer, random init, same loss and data as B2 | Isolates the pretraining effect |
 | B3 | `all-mpnet-base-v2`, frozen | Capacity vs compute |
 | B4 (optional) | mpnet fine-tuned | Only if time allows |
 
 Key requirements:
-- BS and B2 use the same objective so the comparison isolates pretraining.
+- BS, B2-rand, and B2 use the same objective. B2-rand vs B2 isolates pretraining. BS vs B2
+  also differs in architecture and tokenizer, so it is the practical comparison (see
+  `docs/decisions.md` D8).
 - Trained models (BS, B2) log per-epoch train/val loss **and** train/val retrieval metric,
   so overfitting and convergence can be analyzed.
 - Watch for false negatives with in-batch-negative losses (two items from the same group
@@ -136,7 +139,7 @@ the owner only.
 2. EDA and category mapping (owner decides mapping).
 3. Preprocessing, splits, chunking.
 4. B0, B1, B3 evaluation harness and results. Start requirement labeling in parallel.
-5. BS and B2 training (including data-size variants).
+5. BS, B2-rand, and B2 training (including data-size variants).
 6. Robustness suite, requirement-gap evaluation.
 7. Error analysis, compute and scalability measurements, deployment model choice.
 8. App and deployment.
