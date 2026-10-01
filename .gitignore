@@ -14,3 +14,10 @@ __pycache__/
 .venv/
 .pytest_cache/
 .ipynb_checkpoints/
+
+# Web app
+node_modules/
+web/dist/
+
+# Playwright MCP snapshots and logs
+.playwright-mcp/
