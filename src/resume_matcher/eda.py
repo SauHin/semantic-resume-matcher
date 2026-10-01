@@ -92,12 +92,12 @@ def main():
         real[col].value_counts(dropna=False).to_csv(run / f"job_{col}_counts.csv")
 
     missing = pd.concat({"resumes": resumes.isna().mean(), "jobs_real": real.isna().mean()})
-    missing.rename("missing_fraction").to_csv(run / "missing_values.csv")
+    missing.rename_axis(["dataset", "column"]).rename("missing_fraction").to_csv(run / "missing_values.csv")
 
     lengths = {"resume": word_counts(resumes["Resume_str"])}
     lengths |= {f"job_{c}": word_counts(real[c]) for c in JOB_TEXT_COLS}
     stats = pd.DataFrame({k: v.describe(percentiles=[0.5, 0.9, 0.99]) for k, v in lengths.items()}).T
-    stats.to_csv(run / "text_length_words.csv")
+    stats.rename_axis("field").to_csv(run / "text_length_words.csv")
     fig, axes = plt.subplots(1, 2, figsize=(10, 3.5))
     for ax, key in zip(axes, ["resume", "job_description"]):
         lengths[key].plot.hist(bins=50, ax=ax, title=f"{key}: words per text")
