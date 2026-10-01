@@ -27,7 +27,12 @@ def sha256(path):
 
 def main():
     RAW.mkdir(parents=True, exist_ok=True)
-    manifest = {"kaggle_cli": _run(["kaggle", "--version"]), "datasets": {}}
+    cli = _run(["kaggle", "--version"]) or ""
+    manifest = {
+        "written_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "kaggle_cli": cli.splitlines()[-1] if cli else None,  # last line; earlier lines are upgrade warnings
+        "datasets": {},
+    }
     for name, slug in DATASETS.items():
         zip_path = RAW / f"{slug.split('/')[1]}.zip"
         if not zip_path.exists():
@@ -37,7 +42,8 @@ def main():
             "file": zip_path.name,
             "bytes": zip_path.stat().st_size,
             "sha256": sha256(zip_path),
-            "downloaded_utc": datetime.fromtimestamp(zip_path.stat().st_mtime, timezone.utc).isoformat(timespec="seconds"),
+            # Kaggle sets the file time to the dataset's last update, not the download time.
+            "kaggle_updated_utc": datetime.fromtimestamp(zip_path.stat().st_mtime, timezone.utc).isoformat(timespec="seconds"),
         }
     (RAW / "MANIFEST.json").write_text(json.dumps(manifest, indent=2))
     print(json.dumps(manifest, indent=2))
