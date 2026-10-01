@@ -118,6 +118,12 @@ Outputs (all from the project's own models):
 - Match level (low/medium/high), calibrated from validation score distributions.
 - Each requirement marked supported / not supported, with the supporting CV sentence.
 - A short note on what the score does and does not measure.
+- Batch mode: the user adds up to 10 job descriptions at once. The app ranks them by match
+  score and shows the outputs above for each one (owner request, 2026-09-30, D10).
+- Term-mismatch flag: for a supported requirement, the app lists the content words of the
+  requirement that do not appear anywhere in the CV. The user can then align the wording.
+  The app gives no word suggestions for unsupported requirements. Implemented at
+  milestone 8 with the TF-IDF overlap code from §6 (owner request, 2026-10-01, D11).
 
 Constraints: CVs are processed in memory and never stored; the app reuses the same pipeline
 code as evaluation; it must run on CPU and be deployed somewhere testers can reach without
@@ -132,6 +138,9 @@ Five real job seekers, with consent. Each rates their own fit for 3 job descript
 choose *before* seeing results, then uses the app and fills in SUS + Likert items, plus a
 short interview. Results are reported descriptively. Responses are collected and entered by
 the owner only.
+
+One item asks whether the term-mismatch flag (D11) helped the tester revise their CV. Any
+claim that the flag is useful must come from these answers.
 
 ## 9. Milestones (order, not a schedule)
 
