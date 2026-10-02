@@ -27,7 +27,11 @@ def normalize(text):
     Why: two postings that differ only in spaces or capital letters are the same posting.
     Hint: str.lower(), str.strip(), and re.sub with the pattern r"\\s+".
     """
-    raise NotImplementedError("TODO(owner)")
+    normal = text.lower()
+    normal = normal.strip() # Hapus space awal akhir
+    normal = re.sub(r"\s+", " ", normal) # ganti space (1 atau lebih) jadi 1 space saja
+    return normal
+
 
 
 def duplicate_counts(texts):
@@ -40,7 +44,12 @@ def duplicate_counts(texts):
     (data leakage). We must know how many duplicates exist before the split.
     Hint: Series.dropna(), Series.map(normalize), Series.value_counts(), then keep counts > 1.
     """
-    raise NotImplementedError("TODO(owner)")
+    texts = texts.dropna()
+    texts = texts.map(normalize)
+    texts = texts.value_counts()
+    texts = texts[texts > 1]
+    return texts
+
 
 
 def mentions_category(text, category, first_n_words=10):
@@ -56,7 +65,17 @@ def mentions_category(text, category, first_n_words=10):
     the title alone, without understanding the rest of the CV (title leakage).
     Hint: text.split()[:first_n_words], " ".join(...), re.search with r"\\b" and re.escape().
     """
-    raise NotImplementedError("TODO(owner)")
+    
+    word_list = text.split()[:first_n_words]
+    texts = " ".join(word_list)
+    texts = normalize(texts)
+
+    category = normalize(category)
+    category = category.replace("-", " ")
+    return bool(re.search(rf"\b{re.escape(category)}\b", texts))
+
+    
+
 
 
 # ---------------------------------------------------------------------------
