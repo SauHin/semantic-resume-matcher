@@ -16,6 +16,7 @@ def test_duplicate_counts_ignores_case_spaces_and_missing():
 @pytest.mark.parametrize("text, category, expected", [
     ("HR ADMINISTRATOR with 5 years", "HR", True),
     ("Information technology manager", "Information-Technology", True),
+    ("INFORMATION-TECHNOLOGY manager", "Information-Technology", True),
     ("Teacher at a public school", "Advocate", False),
     ("Worked THROUGH many projects", "HR", False),
     ("one two three four five six seven eight nine ten Chef", "Chef", False),

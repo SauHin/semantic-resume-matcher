@@ -54,7 +54,8 @@ def duplicate_counts(texts):
 
 def mentions_category(text, category, first_n_words=10):
     """Return True if the category name occurs as whole words in the first `first_n_words`
-    words of the resume text. Ignore case, and read "-" in the category as a space.
+    words of the resume text. Ignore case, and read "-" as a space in the category and in
+    the text, so "INFORMATION-TECHNOLOGY" in a resume also counts.
 
     Examples:
         ("HR ADMINISTRATOR with 5 years", "HR") -> True
@@ -68,7 +69,7 @@ def mentions_category(text, category, first_n_words=10):
     
     word_list = text.split()[:first_n_words]
     texts = " ".join(word_list)
-    texts = normalize(texts)
+    texts = normalize(texts).replace("-", " ")
 
     category = normalize(category)
     category = category.replace("-", " ")
