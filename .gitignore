@@ -4,6 +4,7 @@ docs/reference/
 data/
 runs/
 logs/
+models/
 *.pt
 *.ckpt
 *.safetensors

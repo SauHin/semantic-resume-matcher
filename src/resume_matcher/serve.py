@@ -1,9 +1,11 @@
 """Local backend for the web UI: POST /api/match with {cv_text, jd_texts}.
 
 Run: python -m resume_matcher.serve   (the Vite dev server proxies /api to port 8000)
+Set RM_MODEL to a model folder, for example models/b2_quick, to serve a fine-tuned model.
 CVs stay in memory only. Nothing from the request body is stored or logged.
 """
 import json
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from sentence_transformers import SentenceTransformer
@@ -12,7 +14,8 @@ from resume_matcher.match import MODEL_ID, match
 
 MAX_BODY = 1_000_000
 MAX_JOBS = 10  # same cap as web/src/api.ts
-model = SentenceTransformer(MODEL_ID, device="cpu")
+MODEL = os.environ.get("RM_MODEL", MODEL_ID)
+model = SentenceTransformer(MODEL, device="cpu")
 
 
 def encode(texts):
@@ -36,7 +39,7 @@ class Handler(BaseHTTPRequestHandler):
             results = match(cv, jds, encode)
         except (KeyError, ValueError, json.JSONDecodeError) as e:
             return self.reply(400, {"error": str(e)})
-        self.reply(200, {"mock": False, "model": "B1 prototype (MiniLM frozen, uncalibrated)", "results": results})
+        self.reply(200, {"mock": False, "model": f"prototype: {MODEL} (uncalibrated)", "results": results})
 
     def reply(self, status, body):
         data = json.dumps(body).encode()
