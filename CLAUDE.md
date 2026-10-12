@@ -50,28 +50,29 @@ This project is graded, and fabricated evidence is an academic integrity violati
 - Requirement-gap threshold is chosen on the calibration subset only (see PLAN §6).
 - Keep a test that fails if any ID appears in more than one split.
 
-## Compute and workflow (full Google Colab)
+## Compute and workflow (local first, Colab for GPU only; `docs/decisions.md` D12)
 
-- All execution (data prep, training, evaluation, tests) runs in Google Colab Pro through the
-  Colab MCP server (`googlecolab/colab-mcp`), connected to a Colab notebook open in the
-  browser. Claude Code runs locally only to edit code, use git, run unit tests that need no
-  data or GPU, and drive the Colab session. Local test results are a development aid only.
-  The full test suite must pass in Colab before an experiment run (`docs/decisions.md` D6).
+- Work that needs no GPU runs locally in `.venv`: data prep, EDA, CPU evaluation, and all
+  tests. Without `RM_ROOT`, data and run folders live in the repo's gitignored `data/` and
+  `runs/`.
+- Only GPU jobs (model training, and encoding that is too slow on CPU) run in Google Colab Pro
+  through the Colab MCP server (`googlecolab/colab-mcp`), connected to a Colab notebook open in
+  the browser. Run `pytest` in Colab before a GPU job.
 - The git repo is the single source of truth. Never write core logic directly into notebook
-  cells. Flow: edit locally → commit and push → in Colab: `git pull` → install the package →
-  run the relevant script with its config.
-- `/content` is wiped when the runtime resets. Keep raw and processed data, checkpoints, and
-  run folders on Google Drive (e.g. `MyDrive/resume-matcher/`). Copy small result files
-  (metrics, per-epoch history, config) back into the repo and commit them.
-- Long jobs: start them in the background with logs on Drive
+  cells. Flow for a GPU job: edit locally → commit and push → in Colab: `git pull` → install
+  the package → run the relevant script with its config.
+- In Colab, `/content` is wiped when the runtime resets. Keep the data a GPU job needs,
+  checkpoints, and its run folder on Google Drive (`MyDrive/resume-matcher/`). Copy small result
+  files (metrics, per-epoch history, config) back into the repo and commit them.
+- Long jobs in Colab: start them in the background with logs on Drive
   (`nohup python -m ... > <drive>/logs/<run_id>.log 2>&1 &`), then poll the log instead of
   blocking one cell. Save a checkpoint every epoch so a disconnect doesn't lose the run.
 - Before running a cell that installs packages, deletes files, or starts a GPU job longer
   than a few minutes, state what will run and wait for approval.
 - Record the GPU type (`nvidia-smi`) and library versions in every run folder, because Colab
   can assign different GPUs between sessions.
-- Kaggle and GitHub tokens live in Colab Secrets. Never print them or write them to code,
-  notebooks, or logs.
+- Kaggle and GitHub tokens live in Colab Secrets, or locally in `~/.kaggle/access_token` or an
+  environment variable. Never print them or write them to code, notebooks, logs, or the repo.
 
 ## Code conventions (defaults, can be changed by agreement)
 

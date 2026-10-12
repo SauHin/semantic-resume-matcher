@@ -153,3 +153,21 @@ constraints. Each entry gives the decision, the reason, and the rejected alterna
   answers, not from an assumption.
 - Open for milestone 8: the ignored-word list, word matching rules (case, plural forms,
   abbreviations), and the language of the app messages.
+
+## D12. Local first, Colab for GPU jobs only (2026-10-12)
+
+- Decision (owner): work that needs no GPU runs locally in `.venv`: data prep, EDA, CPU
+  evaluation, and all tests. Only GPU jobs run in Colab: model training, and encoding that
+  is too slow on CPU.
+- Reason: a Colab session is a slow loop for small steps, and the Colab MCP connection is
+  not always available.
+- Storage: without `RM_ROOT`, data and run folders live in the repo's gitignored `data/` and
+  `runs/`. In Colab, they live on Drive (`MyDrive/resume-matcher/`). `env.ROOT` picks the
+  location.
+- This replaces the Colab-only parts of D2, D3, and D6. The EDA run folders from milestone 2
+  stay on Drive.
+- The local raw data must be the same files as on Drive: `MANIFEST.json` compares the
+  SHA-256 hashes.
+- Open for milestone 5: how the data for a GPU job gets to Drive. Option A: set `RM_ROOT` to a
+  Google Drive for Desktop folder, so local and Colab share one folder. Option B: upload the
+  processed data by hand before each GPU job.

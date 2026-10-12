@@ -1,6 +1,6 @@
-"""Milestone 2 EDA. Writes tables and figures to a new run folder on Drive.
+"""Milestone 2 EDA. Writes tables and figures to a new run folder under ROOT/runs.
 
-Run in Colab: python -m resume_matcher.eda
+Run locally: python -m resume_matcher.eda
 """
 import json
 import re  # noqa: F401  (for the owner tasks below)
@@ -15,7 +15,7 @@ JOB_TEXT_COLS = ["title", "company_profile", "description", "requirements", "ben
 
 
 # ---------------------------------------------------------------------------
-# Owner tasks. Make tests/test_eda.py pass, then run the EDA again in Colab.
+# Owner tasks. Make tests/test_eda.py pass, then run the EDA again.
 # ---------------------------------------------------------------------------
 
 def normalize(text):

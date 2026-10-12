@@ -1,4 +1,4 @@
-"""Read the raw Kaggle CSVs straight from their zip files on Drive."""
+"""Read the raw Kaggle CSVs straight from their zip files in ROOT/data/raw."""
 import zipfile
 
 import pandas as pd

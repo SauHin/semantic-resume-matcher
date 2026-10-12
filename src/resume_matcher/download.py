@@ -1,11 +1,13 @@
 """Download the two Kaggle datasets as zip files to ROOT/data/raw and write MANIFEST.json.
 
-Needs the KAGGLE_API_TOKEN environment variable. In Colab, set it from Colab Secrets and
-never print it. Raw zips are never overwritten: delete a zip by hand to download it again.
+Needs a Kaggle API token: the KAGGLE_API_TOKEN environment variable, or locally the file
+~/.kaggle/access_token. In Colab, set the variable from Colab Secrets. Never print the token.
+Raw zips are never overwritten: delete a zip by hand to download it again.
 """
 import hashlib
 import json
 import subprocess
+import sys
 from datetime import datetime, timezone
 
 from resume_matcher.env import ROOT, _run
@@ -27,7 +29,7 @@ def sha256(path):
 
 def main():
     RAW.mkdir(parents=True, exist_ok=True)
-    cli = _run(["kaggle", "--version"]) or ""
+    cli = _run([sys.executable, "-m", "kaggle", "--version"]) or ""
     manifest = {
         "written_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "kaggle_cli": cli.splitlines()[-1] if cli else None,  # last line; earlier lines are upgrade warnings
@@ -36,7 +38,7 @@ def main():
     for name, slug in DATASETS.items():
         zip_path = RAW / f"{slug.split('/')[1]}.zip"
         if not zip_path.exists():
-            subprocess.run(["kaggle", "datasets", "download", "-d", slug, "-p", str(RAW)], check=True)
+            subprocess.run([sys.executable, "-m", "kaggle", "datasets", "download", "-d", slug, "-p", str(RAW)], check=True)
         manifest["datasets"][name] = {
             "slug": slug,
             "file": zip_path.name,

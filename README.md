@@ -15,10 +15,25 @@ Results: TBD. No experiment has run yet.
 - `notebooks/colab.ipynb`: Colab bootstrap. It mounts Drive, clones or pulls, installs, and runs commands.
 - `docs/`: plan, decisions, and AI usage log.
 
-Data, checkpoints, and run folders are not in this repository. They live on Google Drive
-under `MyDrive/resume-matcher/`.
+Data, checkpoints, and run folders are not in this repository. Locally, they live in the
+gitignored `data/` and `runs/` folders. In Colab, they live on Google Drive under
+`MyDrive/resume-matcher/` (`docs/decisions.md` D12).
 
-## Run in Colab
+## Run locally
+
+1. Save your Kaggle API token in `~/.kaggle/access_token`. Never commit the token.
+2. Download the raw data to `data/raw/`. The script writes the SHA-256 hashes to `MANIFEST.json`.
+3. Run the EDA. The results go to a new folder in `runs/`.
+
+```bash
+.venv/Scripts/python -m resume_matcher.download
+```
+
+```bash
+.venv/Scripts/python -m resume_matcher.eda
+```
+
+## Run GPU jobs in Colab
 
 1. Open [notebooks/colab.ipynb](https://colab.research.google.com/github/SauHin/semantic-resume-matcher/blob/main/notebooks/colab.ipynb) in Colab.
 2. Select a GPU runtime.

@@ -8,9 +8,11 @@ from datetime import datetime, timezone
 from importlib import metadata
 from pathlib import Path
 
-# Project folder on Google Drive. Set RM_ROOT to use another folder.
-ROOT = Path(os.environ.get("RM_ROOT", "/content/drive/MyDrive/resume-matcher"))
 REPO = Path(__file__).resolve().parents[2]
+# Storage for data/ and runs/: Google Drive in Colab (GPU jobs, D12), else the repo folder
+# (both gitignored). Set RM_ROOT to use another folder, e.g. a Drive for Desktop folder.
+_COLAB = Path("/content/drive/MyDrive/resume-matcher")
+ROOT = Path(os.environ.get("RM_ROOT") or (_COLAB if _COLAB.parent.exists() else REPO))
 
 
 def _run(cmd):
@@ -49,7 +51,7 @@ def new_run_dir(name):
 
 
 if __name__ == "__main__":
-    # Setup check: write env.json to a new run folder on Drive.
+    # Setup check: write env.json to a new run folder under ROOT.
     run_dir = new_run_dir("setup-check")
     info = json.loads((run_dir / "env.json").read_text())
     print(f"run folder: {run_dir}")
