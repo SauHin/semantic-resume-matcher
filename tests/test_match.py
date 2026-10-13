@@ -8,6 +8,15 @@ def test_split_lines_drops_bullets_and_headings():
         "Python 3 years", "SQL skills.", "Git basics."]
 
 
+def test_split_lines_joins_lines_a_pdf_wrapped_mid_sentence():
+    text = ("I collected 60,283 tweets, labelled them with rules \nand by hand. Off the shelf and fine-\n"
+            "tuned models.\nTools: pandas, PyTorch,\nUMAP, Git\n- Python\n- SQL\n3 years of Go.")
+    assert split_lines(text) == [
+        "I collected 60,283 tweets, labelled them with rules and by hand.",
+        "Off the shelf and fine-tuned models.", "Tools: pandas, PyTorch, UMAP, Git", "Python", "SQL",
+        "3 years of Go."]
+
+
 def test_split_lines_drops_section_headings_of_any_wording_but_keeps_bulleted_skills():
     text = ("WORK EXPERIENCE\nProfessional Experience\nProjects and Research\nTECHNICAL SKILLS\n"
             "Languages: Python, SQL, C\nBuilt a REST API with Flask.\n- Docker\nPeer Mentor, BINUS 2025")

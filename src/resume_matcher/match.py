@@ -39,11 +39,16 @@ def is_heading(line):
 def split_lines(text):
     """Split text into lines or sentences, without bullets, numbering, headings ending in ':',
     or section headings. A line that starts with a bullet is never a heading."""
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    # Join lines that a PDF wrapped in the middle of a sentence.
+    text = re.sub(r"-\n(?=[a-z])", "-", text)  # fine-\ntuned
+    text = re.sub(r"(?<=[^.!?:\n])\n(?=[a-z(])", " ", text)  # next line starts in lowercase
+    text = re.sub(r",\n(?=[^\s\-*•●·])", ", ", text)  # a list that wraps after a comma
     out = []
     for raw in re.split(r"\n|(?<=[.!?])\s+", text):
-        line = re.sub(r"^[\s\-*•●·\d.)]+", "", raw).strip()
+        line = re.sub(r"^\s*(?:[-*•●·]|\d+[.)])\s*", "", raw).strip()  # bullet, "1." or "2)"
         bulleted = line != raw.strip()
-        if len(line) > 3 and not line.endswith(":") and (bulleted or not is_heading(line)):
+        if re.search(r"[A-Za-z]", line) and not line.endswith(":") and (bulleted or not is_heading(line)):
             out.append(line)
     return out
 
