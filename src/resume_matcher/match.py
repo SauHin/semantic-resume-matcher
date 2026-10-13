@@ -1,26 +1,54 @@
-"""CV-to-job matching for the app. Prototype: frozen MiniLM (B1), thresholds not calibrated yet.
+"""CV-to-job matching for the app. Prototype: support thresholds per model come from
+python -m resume_matcher.calibrate (configs/support_thresholds.json).
 
 Output follows the contract in web/src/api.ts (D9, D10): results[i] belongs to jd_texts[i].
 """
+import json
 import re
+from pathlib import Path
 
 import numpy as np
 
 MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
-# shortcut: picked by eye on the made-up UI example, not calibrated and not a result.
-# PLAN §6/§7: set both from the calibration and validation data later.
+THRESHOLDS = Path(__file__).resolve().parents[2] / "configs" / "support_thresholds.json"
+# shortcut: fallback picked by eye on the made-up UI example, for models without calibration.
 SUPPORT_THRESHOLD = 0.4
 LEVELS = [(0.6, "high"), (0.35, "medium")]  # fraction of supported requirements -> level
 
 
+def load_threshold(model_id):
+    try:
+        return json.loads(THRESHOLDS.read_text())[model_id]["threshold"]
+    except (FileNotFoundError, KeyError):
+        print(f"No calibrated threshold for {model_id}, using {SUPPORT_THRESHOLD}")
+        return SUPPORT_THRESHOLD
+
+
+def is_heading(line):
+    """A section heading, found by shape instead of a word list, so 'EXPERIENCE',
+    'Work Experience', and 'Professional Experience' all count: at most 5 words, no digits or
+    punctuation, and ALL CAPS or Title Case.
+    shortcut: a CV line with only skill names and no commas ('Python', 'Git and GitHub') also
+    counts as a heading. Use a layout-aware PDF parser if this loses real evidence."""
+    words = line.split()
+    if not words or len(words) > 5 or re.search(r"[\d.,;:!?()|@/+#]", line):
+        return False
+    return line.isupper() or all(w[0].isupper() or w.lower() in {"and", "of", "&"} for w in words)
+
+
 def split_lines(text):
-    """Split text into lines or sentences, without bullets, numbering, or headings ending in ':'."""
-    parts = re.split(r"\n|(?<=[.!?])\s+", text)
-    parts = [re.sub(r"^[\s\-*•·\d.)]+", "", p).strip() for p in parts]
-    return [p for p in parts if len(p) > 3 and not p.endswith(":")]
+    """Split text into lines or sentences, without bullets, numbering, headings ending in ':',
+    or section headings. A line that starts with a bullet is never a heading."""
+    out = []
+    for raw in re.split(r"\n|(?<=[.!?])\s+", text):
+        line = re.sub(r"^[\s\-*•●·\d.)]+", "", raw).strip()
+        bulleted = line != raw.strip()
+        if len(line) > 3 and not line.endswith(":") and (bulleted or not is_heading(line)):
+            out.append(line)
+    return out
 
 
-def match(cv_text, jd_texts, encode):
+def match(cv_text, jd_texts, encode, threshold=SUPPORT_THRESHOLD):
     """encode(list[str]) -> L2-normalized embeddings, one row per string."""
     cv_lines = split_lines(cv_text)
     if not cv_lines:
@@ -38,8 +66,8 @@ def match(cv_text, jd_texts, encode):
         sims = req_emb @ cv_emb.T  # cosine: rows are requirements, columns are CV lines
         best = sims.argmax(1)
         requirements = [
-            {"text": r, "supported": bool(sims[i, best[i]] >= SUPPORT_THRESHOLD),
-             "evidence": cv_lines[best[i]] if sims[i, best[i]] >= SUPPORT_THRESHOLD else None}
+            {"text": r, "supported": bool(sims[i, best[i]] >= threshold),
+             "evidence": cv_lines[best[i]] if sims[i, best[i]] >= threshold else None}
             for i, r in enumerate(reqs)
         ]
         jd_vec = req_emb.mean(0)

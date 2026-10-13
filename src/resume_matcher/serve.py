@@ -10,12 +10,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from sentence_transformers import SentenceTransformer
 
-from resume_matcher.match import MODEL_ID, match
+from resume_matcher.match import MODEL_ID, load_threshold, match
 
 MAX_BODY = 1_000_000
 MAX_JOBS = 10  # same cap as web/src/api.ts
 MODEL = os.environ.get("RM_MODEL", MODEL_ID)
 model = SentenceTransformer(MODEL, device="cpu")
+THRESHOLD = load_threshold(MODEL)
 
 
 def encode(texts):
@@ -36,7 +37,7 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError("cv_text must be text and jd_texts a list of texts.")
             if not 1 <= len(jds) <= MAX_JOBS:
                 raise ValueError(f"Send 1 to {MAX_JOBS} job posts.")
-            results = match(cv, jds, encode)
+            results = match(cv, jds, encode, THRESHOLD)
         except (KeyError, ValueError, json.JSONDecodeError) as e:
             return self.reply(400, {"error": str(e)})
         self.reply(200, {"mock": False, "model": f"prototype: {MODEL} (uncalibrated)", "results": results})

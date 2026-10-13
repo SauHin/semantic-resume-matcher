@@ -1,0 +1,12 @@
+{
+  "sentence-transformers/all-MiniLM-L6-v2": {
+    "threshold": 0.48330819606781006,
+    "percentile": 95,
+    "run": "calibrate-support_20261013-024824_fd4659d"
+  },
+  "models/b2_quick": {
+    "threshold": 0.5821050405502319,
+    "percentile": 95,
+    "run": "calibrate-support_20261013-024824_fd4659d"
+  }
+}

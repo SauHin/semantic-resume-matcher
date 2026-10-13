@@ -8,6 +8,13 @@ def test_split_lines_drops_bullets_and_headings():
         "Python 3 years", "SQL skills.", "Git basics."]
 
 
+def test_split_lines_drops_section_headings_of_any_wording_but_keeps_bulleted_skills():
+    text = ("WORK EXPERIENCE\nProfessional Experience\nProjects and Research\nTECHNICAL SKILLS\n"
+            "Languages: Python, SQL, C\nBuilt a REST API with Flask.\n- Docker\nPeer Mentor, BINUS 2025")
+    assert split_lines(text) == [
+        "Languages: Python, SQL, C", "Built a REST API with Flask.", "Docker", "Peer Mentor, BINUS 2025"]
+
+
 def fake_encode(texts):
     # One-hot on the first word: lines that start with the same word count as identical.
     vocab = ["python", "sql", "java"]
